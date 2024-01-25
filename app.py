@@ -56,7 +56,31 @@ def login():
     
   return jsonify({'message': 'Invalid credentials'}), 400
 
+# Logout user
+@app.route('/logout', methods=['GET'])
+@login_required
+def logout():
+  logout_user()
+  return jsonify({'message': 'User logout successfully'})
+
 # MEAL ROUTES
+
+# Show Meal
+@app.route('/meals/<int:id_meal>', methods=['GET'])
+def get_meal(id_meal):
+  meal = Meal.query.get(id_meal)
+
+  if meal:
+    return {
+      'name': meal.name,
+      'description': meal.description,
+      'date': str(meal.date),
+      'time': str(meal.time),
+      'is_in_diet': meal.is_in_diet,
+      'user_id': meal.user_id
+    }
+
+  return jsonify({'message': 'Meal not found.'}), 400
 
 # Create Meal
 @app.route('/meals', methods=['POST'])
@@ -92,6 +116,38 @@ def create_meal():
       return jsonify({'message': f'The meal {name} was successfully created'})
 
   return jsonify({'message': 'Invalid parameters'}), 400
+
+# Update meal
+@app.route('/meals/<int:id_meal>', methods=['PATCH'])
+@login_required
+def update_meal(id_meal):
+  data = request.json
+  meal = Meal.query.get(id_meal)
+
+  if meal.user_id != current_user.id:
+    return jsonify({'message': 'Action not allowed.'}), 403
+  
+  date_formatted = None
+  
+  try:
+    date_formatted = datetime.strptime(data.get('date'), '%m/%d/%y')
+    time_formatted = datetime.strptime(data.get('time'), '%H:%M').time()
+  except ValueError:
+    return jsonify({'message': 'Invalid date or time format'}), 400
+  
+  meal.name = data.get('name')
+  meal.description = data.get('description')
+  meal.date = date_formatted
+  meal.time = time_formatted
+  meal.is_in_diet = data.get('is_in_diet')
+  meal.user_id = current_user.id
+
+  db.session.commit()
+
+  meal = Meal.query.get(id_meal)
+
+
+  return jsonify({'message': f'Meal {meal.name} sucessfully updated.'})
 
 
 if __name__ == '__main__':
