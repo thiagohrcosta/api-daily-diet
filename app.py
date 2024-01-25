@@ -31,5 +31,21 @@ def create_user():
 
   return jsonify({'message': 'Invalid data'}), 400
 
+@app.route('/login', methods=['POST'])
+def login():
+  data = request.json
+  username = data.get('username')
+  password = data.get('password')
+
+  if username and password:
+    user = User.query.filter_by(username=username).first()
+
+    if user and bcrypt.checkpw(str.encode(password), str.encode(user.password)):
+      login_user(user)
+      print(current_user.is_authenticated)
+      return jsonify({'message': 'The user signed in successfully.'})
+    
+  return jsonify({'message': 'Invalid credentials'}), 400
+
 if __name__ == '__main__':
   app.run(debug=True)
