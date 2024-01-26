@@ -149,6 +149,47 @@ def update_meal(id_meal):
 
   return jsonify({'message': f'Meal {meal.name} sucessfully updated.'})
 
+# Delete meal
+@app.route('/meals/<int:id_meal>', methods=['DELETE'])
+@login_required
+def delete_meal(id_meal):
+  meal = Meal.query.get(id_meal)
+
+  if current_user.id != meal.user_id:
+    return jsonify({'message': 'Action not allowed'}), 403
+  
+  if meal:
+    db.session.delete(meal)
+    db.session.commit()
+
+    return jsonify({'message': 'Meal successfully deleted.'})
+
+
+# LIST USERS MEALS
+@app.route('/meals/user/<int:id_user>', methods=['GET'])
+def show_user_meals(id_user):
+  user = User.query.get(id_user)
+
+  if not user:
+    return jsonify({'message': 'User not found'}), 400
+
+  if user:    
+    meals = Meal.query.filter_by(user_id=id_user).all()
+
+    if len(meals) == 0:
+      return jsonify({'message': 'No meals found for this user.'})
+
+    meals_data = [{
+      'id': meal.id,
+      'name': meal.name,
+      'description': meal.description,
+      'date': meal.date.strftime('%m/%d/%y'),
+      'time': meal.time.strftime('%H:%M'), 
+      'is_in_diet': meal.is_in_diet
+    } for meal in meals]
+
+    return jsonify(meals_data)
+  
 
 if __name__ == '__main__':
   app.run(debug=True)
