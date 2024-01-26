@@ -178,7 +178,14 @@ def show_user_meals(id_user):
 
     if len(meals) == 0:
       return jsonify({'message': 'No meals found for this user.'})
+    
+    total_meals = len(meals)
+    total_meals_on_diet = sum(1 for meal in meals if meal.is_in_diet)
+    total_meals_not_on_diet = total_meals - total_meals_on_diet
 
+    percentage_on_diet = (total_meals_on_diet / total_meals) * 100
+    percentage_not_on_diet = (total_meals_not_on_diet / total_meals) * 100
+    
     meals_data = [{
       'id': meal.id,
       'name': meal.name,
@@ -188,7 +195,18 @@ def show_user_meals(id_user):
       'is_in_diet': meal.is_in_diet
     } for meal in meals]
 
-    return jsonify(meals_data)
+    user_info = {
+      'total_meals': total_meals,
+      'percentage_on_diet': percentage_on_diet,
+      'percentage_not_on_diet': percentage_not_on_diet
+    }
+
+    response_data = {
+      'meals_data': meals_data,
+      'user_dashboard': user_info
+    }
+
+    return jsonify(response_data)
   
 
 if __name__ == '__main__':
