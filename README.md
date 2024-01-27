@@ -1,4 +1,4 @@
-![banner](https://res.cloudinary.com/dloadb2bx/image/upload/v1706370132/apilibrary_jm3cox.png)
+![banner](https://res.cloudinary.com/dloadb2bx/image/upload/v1706370132/apilibrary_jm3cox.png](https://res.cloudinary.com/dloadb2bx/image/upload/v1706241280/dailydiet_sehpbr.png)
 # Daily Diet API
 
 ## Technologies
